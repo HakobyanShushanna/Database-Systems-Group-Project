@@ -186,3 +186,11 @@ CREATE TABLE beneficiary (
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE,
     FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE RESTRICT
 );
+
+CREATE TABLE login (
+    person_id INT PRIMARY KEY,
+    username TEXT UNIQUE,
+    password TEXT NOT NULL,
+    FOREIGN KEY (person_id)
+        REFERENCES person(id)   
+);
