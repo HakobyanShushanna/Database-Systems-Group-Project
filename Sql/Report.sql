@@ -99,7 +99,7 @@ WHERE bank_id = %s;
 SELECT COUNT(*) FROM card;
 
 -- Employees by branch
-SELECT AS employees
+SELECT person.first_name, person.last_name, employee.position
 FROM branch_employees
 JOIN employee ON employee.employee_id = branch_employees.employee_id
 JOIN person ON person.id = employee.employee_id

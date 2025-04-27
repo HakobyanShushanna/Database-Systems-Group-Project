@@ -1,14 +1,12 @@
-from mako.testing.helpers import result_lines
-
 from config import get_query, execute_query
 import streamlit as st
+from static_files import report, crud
 
-filename = "Sql/Report.sql"
 
 def get_deposits(id, number:bool = True):
-    query = get_query("Deposits", filename)
+    query = get_query("Deposits", report)
     if number:
-        query = get_query("The number of deposits", filename)
+        query = get_query("The number of deposits", report)
 
     if query is None:
         st.error("Query does not exist")
@@ -20,9 +18,9 @@ def get_deposits(id, number:bool = True):
 
 
 def get_withdrawals(id, number:bool = True):
-    query = get_query("Withdrawals", filename)
+    query = get_query("Withdrawals", report)
     if number:
-        query = get_query("The number of withdrawals", filename)
+        query = get_query("The number of withdrawals", report)
 
     if query is None:
         st.error("Query does not exist")
@@ -34,9 +32,9 @@ def get_withdrawals(id, number:bool = True):
 
 
 def get_transactions(id, number:bool = True):
-    query = get_query("Transactions", filename)
+    query = get_query("Transactions", report)
     if number:
-        query = get_query("The number of transactions", filename)
+        query = get_query("The number of transactions", report)
 
     if query is None:
         st.error("Query does not exist")
@@ -47,9 +45,9 @@ def get_transactions(id, number:bool = True):
 
 
 def get_repayments(id, number:bool = True):
-    query = get_query("Repayments", filename)
+    query = get_query("Repayments", report)
     if number:
-        query = get_query("Total amount repaid", filename)
+        query = get_query("Total amount repaid", report)
 
     if query is None:
         st.error("No query found")
@@ -60,7 +58,7 @@ def get_repayments(id, number:bool = True):
 
 
 def get_remining_balance(id):
-    query = get_query("Remaining balance", filename)
+    query = get_query("Remaining balance", report)
 
     if query is None:
         st.error("Query not found")
@@ -71,9 +69,9 @@ def get_remining_balance(id):
 
 
 def get_loans(id, number:bool = True):
-    query = get_query("Loans", filename)
+    query = get_query("Loans", report)
     if number:
-        query = get_query("Total loan amount", filename)
+        query = get_query("Total loan amount", report)
 
     if query is None:
         st.error("Query not found")
@@ -83,7 +81,7 @@ def get_loans(id, number:bool = True):
     return result
 
 def get_cards(id):
-    query = get_query("Cards", filename)
+    query = get_query("Cards", report)
 
     if query is None:
         st.error("No Query found")
@@ -93,10 +91,53 @@ def get_cards(id):
 
 
 def get_accounts(id):
-    query = get_query("Accounts", filename)
+    query = get_query("Accounts", report)
 
     if query is None:
         st.error("No Query found")
         return
 
     result = execute_query(query, (id,), fetch_all=True)
+
+def add_account(user_id, account_type, bank, initial_balance):
+    query = get_query("Add account", crud)
+
+    if query is None:
+        st.error("Query does not exist")
+        return
+
+    params = (user_id, account_type, bank, initial_balance)
+    execute_query(query, params)
+
+
+def add_withdrawal(user_id, account_id, amount, receiver, description):
+    query = get_query("Add withdrawal", crud)
+
+    if query is None:
+        st.error("Query does not exist")
+        return
+
+    params = (user_id, account_id, amount, receiver, description)
+    execute_query(query, params)
+
+
+def add_deposit(user_id, account_id, amount, sender, description):
+    query = get_query("Add deposit", crud)
+
+    if query is None:
+        st.error("Query does not exist")
+        return
+
+    params = (user_id, account_id, amount, sender, description)
+    execute_query(query, params)
+
+
+def delete_account(account_id):
+    query = get_query("Delete account", crud)
+
+    if query is None:
+        st.error("Query does not exist")
+        return
+
+    params = (account_id,)
+    execute_query(query, params)

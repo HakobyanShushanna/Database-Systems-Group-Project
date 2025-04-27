@@ -5,9 +5,9 @@ import psycopg2
 @cache_resource
 def get_connection():
     conn = psycopg2.connect(
-        dbname="GroupProject",
+        dbname="YOURDBNAME",
         user="postgres",
-        password="Tumo4227!",
+        password="PASSWORD",
         host="localhost",
         port="5432"
     )
