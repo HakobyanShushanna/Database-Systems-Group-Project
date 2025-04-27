@@ -1,11 +1,28 @@
+CREATE TABLE bank(
+    bank_id SERIAL PRIMARY KEY,
+    bank_name VARCHAR(100)  NOT NULL,
+    bank_address VARCHAR(255) NOT NULL,
+	bank_swift_code VARCHAR(11)  NOT NULL
+);
+
+CREATE TABLE position(
+	position_id SERIAL PRIMARY KEY,
+	position_name VARCHAR(100) NOT NULL,
+    salary NUMERIC(10,2) NOT NULL,
+	bank_id INT,
+	FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE RESTRICT
+);
+
 CREATE TABLE account (
     account_id SERIAL PRIMARY KEY,
     balance DECIMAL(15, 2) NOT NULL,
     status VARCHAR(50) NOT NULL,
     account_type VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
+	bank_id INT,
     CHECK (status IN ('active', 'inactive', 'closed', 'suspended')),
-    CHECK (account_type IN ('savings', 'checking', 'business'))
+    CHECK (account_type IN ('savings', 'checking', 'business')),
+	FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE person (
@@ -16,7 +33,6 @@ CREATE TABLE person (
     role VARCHAR(50) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL,
-    CHECK (role IN ('customer', 'employee')),
     CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
@@ -25,12 +41,15 @@ CREATE TABLE customer (
     date_of_birth DATE NOT NULL,
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     address VARCHAR(255) NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES person(id) ON DELETE CASCADE
+	bank_id INT,
+    FOREIGN KEY (customer_id) REFERENCES person(id) ON DELETE CASCADE,
+	FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE employee (
     employee_id INT PRIMARY KEY,
-    salary NUMERIC(10,2) NOT NULL,
+	position_id int,
+	FOREIGN KEY (position_id) REFERENCES position(position_id) ON DELETE RESTRICT,
     FOREIGN KEY (employee_id) REFERENCES person(id) ON DELETE CASCADE
 );
 
@@ -48,22 +67,6 @@ CREATE TRIGGER customer_role_must_be_customer
   BEFORE INSERT OR UPDATE ON customer
   FOR EACH ROW
   EXECUTE FUNCTION trg_customer_role_check();
-
-CREATE OR REPLACE FUNCTION trg_employee_role_check()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF (SELECT role FROM person WHERE id = NEW.employee_id) <> 'employee' THEN
-    RAISE EXCEPTION 'person % must have role="employee"', NEW.employee_id;
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER employee_role_must_be_employee
-  BEFORE INSERT OR UPDATE ON employee
-  FOR EACH ROW
-  EXECUTE FUNCTION trg_employee_role_check();
-
 
 CREATE TABLE card (
     card_id SERIAL PRIMARY KEY,
@@ -170,13 +173,6 @@ CREATE TABLE audit_log(
 		REFERENCES employee(employee_id) ON DELETE CASCADE
 );	
 
-CREATE TABLE bank(
-    bank_id SERIAL PRIMARY KEY,
-    bank_name VARCHAR(100)  NOT NULL,
-    bank_address VARCHAR(255) NOT NULL,
-	bank_swift_code VARCHAR(11)  NOT NULL
-);
-
 CREATE TABLE branch (
     branch_id SERIAL PRIMARY KEY,
     branch_name VARCHAR(100) NOT NULL,
@@ -208,7 +204,3 @@ CREATE TABLE beneficiary (
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE,
     FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE RESTRICT
 );
-
-
-
-
