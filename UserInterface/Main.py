@@ -7,4 +7,4 @@ def main_page():
     if st.button("Login"):
         st.session_state.page = "login"
     if st.button("Register"):
-        st.session_state.page = "register"
+        st.session_state.page = "registration"

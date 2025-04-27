@@ -5,9 +5,9 @@ import psycopg2
 @cache_resource
 def get_connection():
     conn = psycopg2.connect(
-        dbname="YOURDBNAME",
+        dbname="GroupProject",
         user="postgres",
-        password="PASSWORD",
+        password="Tumo4227!",
         host="localhost",
         port="5432"
     )
@@ -36,7 +36,7 @@ def get_query(tag, filename):
     return queries.get(tag)
 
 
-def execute_query(query, params=None, fetch_all=False):
+def execute_query(query, params=None, fetch_all=False, return_row=False):
     conn = get_connection()
     with conn.cursor() as cursor:
         cursor.execute(query, params)
@@ -45,6 +45,12 @@ def execute_query(query, params=None, fetch_all=False):
                 return cursor.fetchall()
             else:
                 result = cursor.fetchone()
-                return result[0] if result else None
+                if result:
+                    if return_row:
+                        return result
+                    else:
+                        return result[0]
+                else:
+                    return None
     conn.commit()
     return None

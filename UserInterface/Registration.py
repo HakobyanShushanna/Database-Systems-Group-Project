@@ -1,43 +1,7 @@
 import streamlit as st
 import Logic.Registration
-from config import get_query, execute_query
 from datetime import datetime
-
-filename = "SearchFilter.sql"
-
-
-def banks_list():
-    query = get_query("Banks list", filename)
-    if query is None:
-        st.error("No query found")
-
-    banks = execute_query(query, fetch_all=True)
-    bank_options = {name: bank_id for bank_id, name in banks}
-
-    return bank_options
-
-
-def roles_list(bank_id):
-    query = get_query("Roles list", filename)
-    if query is None:
-        st.error("No query found")
-
-    roles = execute_query(query, (bank_id,), fetch_all=True)
-    role_options = {name: role_id for role_id, name in roles}
-
-    return role_options
-
-
-def branches_list(bank_id):
-    query = get_query("Branches list", filename)
-    if query is None:
-        st.error("No query found")
-
-    branches = execute_query(query, fetch_all=True)
-    branch_options = {name: branch_id for branch_id, name in branches}
-
-    return branch_options
-
+from Logic.Registration import banks_list, roles_list
 
 def register_page():
     st.title("📝 Register")
