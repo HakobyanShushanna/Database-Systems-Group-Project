@@ -10,7 +10,7 @@ CREATE TABLE position(
 	position_name VARCHAR(100) NOT NULL,
     salary NUMERIC(10,2) NOT NULL,
 	bank_id INT,
-	FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE RESTRICT
+	FOREIGN KEY (bank_id) REFERENCES bank(bank_id) ON DELETE CASCADE
 );
 
 CREATE TABLE person (
@@ -188,9 +188,6 @@ CREATE TABLE beneficiary (
 );
 
 CREATE TABLE login (
-    person_id INT PRIMARY KEY,
-    username TEXT UNIQUE,
-    password TEXT NOT NULL,
-    FOREIGN KEY (person_id)
-        REFERENCES person(id)   
+    username VARCHAR(50) PRIMARY KEY,
+    password TEXT NOT NULL 
 );
