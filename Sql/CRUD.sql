@@ -1,23 +1,19 @@
--- Register person
+-- Add person
 INSERT INTO person (first_name, middle_name, last_name, role, phone, email)
 VALUES (%s, %s, %s, %s, %s, %s)
 RETURNING id;
 
--- Register customer
-INSERT INTO customer (customer_id, date_of_birth, created_at, address, bank_id)
-VALUES (%s, %s, %s, %s, %s);
+-- Add customer
+INSERT INTO customer (customer_id, date_of_birth, address, bank_id)
+VALUES (%s, %s, %s, %s);
 
--- Register employee
+-- Add employee
 INSERT INTO employee(employee_id, position_id)
-values(%s, %s)
+values(%s, %s);
 
 -- Add account
 INSERT INTO account(balance, status, account_type, created_at, bank_id, customer_id)
-VALUES(%s, %s, %s, %s, %s, %s)
-
--- Add audit_log
-INSERT INTO audit_log(employee_id, action, log_date, ip_address)
-VALUES(%s, %s, %s, %s)
+VALUES(%s, %s, %s, %s, %s, %s);
 
 -- Add bank
 INSERT INTO bank(bank_name, bank_address, bank_swift_code)
@@ -25,39 +21,43 @@ VALUES(%s, %s, %s)
 
 -- Add beneficiary
 INSERT INTO beneficiary(customer_id, beeficiary_name, beneficiary_account_number, bank_id)
-VALUES(%s, %s, %s, %s)
+VALUES(%s, %s, %s, %s);
 
 -- Add branch
 INSERT INTO branch(branch_name, location, contact_number, bank_id, manager_id)
-VALUES(%s, %s, %s, %s, %s)
+VALUES(%s, %s, %s, %s, %s);
 
 -- Add card
 INSERT INTO card(account_id, card_number, card_type, expiry_date, status, cvv, customer_id)
-VALUES(%s, %s, %s, %s, %s, %s, %s)
+VALUES(%s, %s, %s, %s, %s, %s, %s);
 
 -- Add loan
 INSERT INTO loan(customer_id, loan_type, amount, issued_date, due_date, created_at, interest_rate, status)
-VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+VALUES(%s, %s, %s, %s, %s, %s, %s, %s);
 
 -- Add loan_repayment
 INSERT INTO loan_repayment(loan_id, repayment_date, amount_paid, remining_balance, created_at)
-VALUES(%s, %s, %s, %s, %s)
+VALUES(%s, %s, %s, %s, %s);
 
 -- Add payment
 INSERT INTO payment(transaction_id, payment_date, amount, payment_method)
-VALUES(%s, %s, %s, %s)
+VALUES(%s, %s, %s, %s);
 
 -- Add position
 INSERT INTO position(position_name, salary, bank_id)
-VALUES(%s, %s, %s)
+VALUES(%s, %s, %s);
 
 -- Add transaction
 INSERT INTO transaction(sender_id, receiver_id, amount, description, type, transaction_date)
-VALUES(%s, %s, %s, %s, %s, %s)
+VALUES(%s, %s, %s, %s, %s, %s);
 
 -- Add login
-INSERT INTO login (person_id, username, password)
-VALUES (%s, %s, %s);
+INSERT INTO login (username, password)
+VALUES (%s, %s);
+
+-- Add branch_employee
+INSERT INTO branch_employee(branch_id, employee_id)
+VALUES(%s, %s);
 
 -- Register person
 INSERT INTO person (first_name, middle_name, last_name, role, phone, email)
@@ -146,8 +146,7 @@ UPDATE account
 DELETE FROM account
  WHERE account_id = %s;
 
-
--- Add audit_log 
+-- Add audit_log
 INSERT INTO audit_log(employee_id, action, log_date, ip_address)
 VALUES(%s, %s, %s, %s)
 
