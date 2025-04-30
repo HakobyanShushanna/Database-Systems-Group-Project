@@ -2,6 +2,7 @@ from streamlit import cache_resource
 import psycopg2
 
 #TODO: Change connection parameters
+# @cache_resource
 def get_connection():
     conn = psycopg2.connect(
         dbname="YOURDBNAME",

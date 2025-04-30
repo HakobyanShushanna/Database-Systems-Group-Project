@@ -14,6 +14,11 @@ FROM transaction
 Where sender_id = %s
 	or receiver_id = %s;
 
+-- The number of loans
+SELECT COUNT(*) AS total_loans
+FROM loan
+WHERE loan.customer_id = %s;
+
 -- Deposits
 SELECT *
 FROM transaction
@@ -53,9 +58,15 @@ SELECT SUM(loan.amount)
 FROM loan
 WHERE loan.customer_id = %s;
 
+-- Total loan repayment amount
+SELECT sum(amount_paid)
+FROM loan_repayment
+JOIN loan ON loan.loan_id = loan_repayment.loan_id
+WHERE loan.customer_id = %s;
+
 -- Loans
-SELECT *
-FROM loan
+SELECT * FROM loan
+JOIN loan_repayment ON loan_repayment.loan_id = loan.loan_id
 WHERE loan.customer_id = %s;
 
 -- Cards
@@ -80,25 +91,25 @@ WHERE ca.customer_id = %s
       AND t.transaction_date >= CURRENT_DATE - INTERVAL '90 days'
   );
 
--- Number of employees by branch
+-- The number of employees by branch
 SELECT COUNT(*) AS number_of_employees
 FROM branch_employees
 WHERE branch_id = %s;
 
--- Number of customers by bank
+-- The number of customers by bank
 SELECT COUNT(*) AS number_of_customers
 FROM customer
 WHERE bank_id = %s;
 
--- Number of accounts by bank
+-- The number of accounts by bank
 SELECT COUNT(*) AS number_of_accounts
 FROM account
 WHERE bank_id = %s;
 
--- Number of cards
+-- The number of cards
 SELECT COUNT(*) FROM card;
 
--- Employees by branch
+-- The nmployees by branch
 SELECT person.first_name, person.last_name, employee.position
 FROM branch_employees
 JOIN employee ON employee.employee_id = branch_employees.employee_id

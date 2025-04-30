@@ -1,22 +1,62 @@
-from pydoc import describe
-
 import streamlit as st
+from cloudinit.reporting.events import status
+
 import BackEnd.admin_operations_logic as admin_operations_logic
-from BackEnd.admin_operations_logic import get_employees
 from BackEnd.data_from_db import get_banks, get_branches, get_roles
 from datetime import datetime
 
 def profile():
-    st.write("Available Operations:")
+    st.title("Available Operations")
 
     if st.button("Customers List"):
         st.session_state.page = "all_customers"
     if st.button("Employees List"):
         st.session_state.page = "all_employees"
+    if st.button("Banks List"):
+        st.session_state.page = "all_banks"
+    if st.button("Branches List"):
+        st.session_state.page = "all_branches"
+
+    st.title("Customer related operations")
+    customers = admin_operations_logic.get_customers()
+    selected_customer_key = st.selectbox("Customer", list(customers.keys()))
+    selected_customer_id = customers[selected_customer_key]
+
+    if st.button("Transactions List") and selected_customer_id:
+        st.session_state.selected_customer_id = selected_customer_id
+        st.session_state.page = "transactions_list"
+    if st.button("Deposits List") and selected_customer_id:
+        st.session_state.selected_customer_id = selected_customer_id
+        st.session_state.page = "deposits_list"
+    if st.button("Withdrawals List") and selected_customer_id:
+        st.session_state.selected_customer_id = selected_customer_id
+        st.session_state.page = "withdrawals_list"
+    if st.button("Loan related") and selected_customer_id:
+        st.session_state.selected_customer_id = selected_customer_id
+        st.session_state.page = "loan_related"
+    if st.button("Cards") and selected_customer_id:
+        st.session_state.selected_customer_id = selected_customer_id
+        st.session_state.page = "cards"
+    if st.button("Accounts") and selected_customer_id:
+        st.session_state.selected_customer_id = selected_customer_id
+        st.session_state.page = "accounts"
+
+    st.title("Employee related information")
+
+    employees = admin_operations_logic.get_employees()
+    selected_employee_key = st.selectbox("Employee", list(employees.keys()))
+    selected_employee_id = employees[selected_employee_key]
+
+    if st.button("Employee information") and selected_employee_id:
+        st.session_state.selected_employee_id = selected_employee_id
+        st.session_state.page = "employee_information"
+    if st.button("Activity") and selected_employee_id:
+        st.session_state.selected_employee_id = selected_employee_id
+        st.session_state.page = "employee_activity"
 
 
 def all_customers():
-    st.write("Customers list")
+    st.title("Customers list")
 
     if st.button("Add a customer"):
         st.session_state.page = "add_customer"
@@ -31,16 +71,96 @@ def all_customers():
 
 
 def all_employees():
-    st.write("Employees list")
+    st.title("Employees list")
 
     if st.button("Add an employee"):
         st.session_state.page = "add_employee"
+
+    if st.button("Back to profile"):
+        st.session_state.page = "profile"
 
     employees_list = admin_operations_logic.get_employees()
 
     for employee in employees_list:
         st.write(employee)
 
+
+def transactions_for_person(customer_id):
+    st.title("Transactions for the user:")
+
+    st.write(f"Number of transactions: {admin_operations_logic.get_number_transactions(customer_id, "transactions")}")
+
+    if st.button("Add transaction:"):
+        st.session_state.page = "add_transaction"
+
+    if st.button("Back to profile"):
+        st.session_state.page = "profile"
+
+    transaction_list = admin_operations_logic.get_transaction(customer_id, "transactions")
+
+    if not transaction_list[0]:
+        st.warning(transaction_list[1])
+        return
+
+    if not len(transaction_list[1]):
+        st.warning("No transactions for this user")
+        return
+
+    for transaction in transaction_list[1]:
+        st.write(transaction)
+
+
+def deposits_for_person(customer_id):
+    st.title("Deposits for the user:")
+
+    st.write(f"Number of transactions: {admin_operations_logic.get_number_transactions(customer_id, "deposits")}")
+
+    if st.button("Add deposit:"):
+        st.session_state.page = "add_deposit"
+
+    if st.button("Back to profile"):
+        st.session_state.page = "profile"
+
+    deposit_list = admin_operations_logic.get_transaction(customer_id, "deposits")
+
+    if not deposit_list[0]:
+        st.warning(deposit_list[1])
+        return
+
+    if not len(deposit_list[1]):
+        st.warning("No Deposits for this user")
+        return
+
+    for transaction in deposit_list[1]:
+        st.write(transaction)
+
+
+def withdrawals_for_person(customer_id):
+    st.title("Withdrawals for the user:")
+
+    st.write(f"Number of transactions: {admin_operations_logic.get_number_transactions(customer_id, "withdrawals")}")
+
+    if st.button("Add Withdrawal:"):
+        st.session_state.page = "add_withdrawal"
+
+    if st.button("Back to profile"):
+        st.session_state.page = "profile"
+
+    deposit_list = admin_operations_logic.get_transaction(customer_id, "withdrawals")
+
+    if not deposit_list[0]:
+        st.warning(deposit_list[1])
+        return
+
+    if not len(deposit_list[1]):
+        st.warning("No Deposits for this user")
+        return
+
+    for transaction in deposit_list[1]:
+        st.write(transaction)
+
+
+# ====================================================================================
 
 def add_employee():
     st.title("📝 Add an Employee")
@@ -69,7 +189,6 @@ def add_employee():
             result = admin_operations_logic.add_employee(first_name, middle_name, last_name, selected_role_name, phone, email, selected_role_id, selected_branch_id)
             if result[0]:
                 st.success(result[1])
-                st.session_state.page = "success"
             else:
                 st.warning(result[1])
 
@@ -104,9 +223,9 @@ def add_customer():
 
 
 def add_activity():
-    st.write("Add an Activity:")
+    st.title("Add an Activity:")
 
-    employee_options = get_employees()
+    employee_options = admin_operations_logic.get_employees()
     selected_employee = st.selectbox("Employee", list(employee_options.keys()))
     selected_employee_id = employee_options[selected_employee]
 
@@ -125,14 +244,114 @@ def add_activity():
 
 
 def add_transaction():
-    st.write("Add a Transaction:")
+    st.title("Add a Transaction:")
+
+    customers =  admin_operations_logic.get_customers()
+    selected_sender = st.selectbox("Sender", list(customers.keys()), key = "sender_selectbox")
+    selected_sender_id = customers[selected_sender]
+
+    selected_receiver = st.selectbox("Receiver", list(customers.keys()), key = "receiver_selectbox")
+    selected_receiver_id = customers[selected_receiver]
+
+    amount = st.number_input("Amount", min_value=0.00)
+    description = st.text_input("Description")
+
+    if st.button("Add transaction"):
+        result = admin_operations_logic.add_transaction(selected_sender_id, selected_receiver_id, amount, description, "transaction")
+        if result[0]:
+            st.success(result[1])
+        else:
+            st.warning(result[1])
+
+    if st.button("Back to Profile"):
+        st.session_state.page = "profile"
+
+
+def add_deposit(receiver_id):
+    st.title("Add a Deposit:")
 
     customers =  admin_operations_logic.get_customers()
     selected_sender = st.selectbox("Sender", list(customers.keys()))
     selected_sender_id = customers[selected_sender]
 
+    amount = st.number_input("Amount", min_value=0.00)
+    description = st.text_input("Description")
+
+    if st.button("Add transaction"):
+        result = admin_operations_logic.add_transaction(selected_sender_id, receiver_id, amount, description, "deposit")
+        if result[0]:
+            st.success(result[1])
+        else:
+            st.warning(result[1])
+
+    if st.button("Back to Profile"):
+        st.session_state.page = "profile"
+
+
+def add_withdrawal(sender_id):
+    st.title("Add a Deposit:")
+
+    customers =  admin_operations_logic.get_customers()
     selected_receiver = st.selectbox("Sender", list(customers.keys()))
     selected_receiver_id = customers[selected_receiver]
 
     amount = st.number_input("Amount", min_value=0.00)
     description = st.text_input("Description")
+
+    if st.button("Add transaction"):
+        result = admin_operations_logic.add_transaction(sender_id, selected_receiver_id, amount, description, "withdrawal")
+        if result[0]:
+            st.success(result[1])
+        else:
+            st.warning(result[1])
+
+    if st.button("Back to Profile"):
+        st.session_state.page = "profile"
+
+
+def add_loan(customer_id):
+    st.title("Add loan for the user")
+
+    loan_type = st.text_input("Type")
+    amount = st.number_input("Amount", min_value=0.00)
+
+    issued_date = st.date_input("Issued date", min_value=datetime.now())
+    due_date = st.date_input("Due date", min_value=datetime.now())
+
+    interest_rate = st.date_input("Interest rate", min_value=0.00)
+
+    status = st.selectbox("Status", ('pending','active','closed','defaulted'))
+
+    if st.button("Add loan"):
+        result = admin_operations_logic.add_loan(customer_id, loan_type, amount, issued_date, due_date, interest_rate, status)
+        if result[0]:
+            st.success(result[1])
+        else:
+            st.warning(result[1])
+
+    if st.button("Back to Profile"):
+        st.session_state.page = "profile"
+
+
+# ==================================================================================================================================
+def loan_information(customer_id):
+    st.title("Loan information")
+
+    n_loans = admin_operations_logic.get_number_loans(customer_id)
+    sum_loans = admin_operations_logic.get_loan_amount(customer_id)
+    sum_repayments = admin_operations_logic.get_loan_repayment_amount(customer_id)
+
+    st.write(f"The number of loans: {n_loans[1] if n_loans and n_loans[0] else 0}")
+    st.write(f"The total amount: {sum_loans[1] if sum_loans and sum_loans[0] else 0}")
+    st.write(f"Total amount repaid: {sum_repayments[1] if sum_repayments and sum_repayments[0] else 0}")
+
+    if st.button("Add loan"):
+        st.session_state.page = "add_loan"
+
+    if st.button("Back to Profile"):
+        st.session_state.page = "profile"
+
+    loan_list = admin_operations_logic.get_loan(customer_id)
+
+    for loan in loan_list:
+        st.write(loan)

@@ -40,8 +40,13 @@ def get_query(tag, filename):
     return queries.get(tag)
 
 
-def execute_query(query, params=None, fetch_all=False, return_row=False):
-    conn = get_connection()
+def execute_query(query, params=None, fetch_all=False, return_row=False, conn=None):
+    close_conn = False
+
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
     try:
         with conn.cursor() as cursor:
             cursor.execute(query, params)
@@ -55,29 +60,31 @@ def execute_query(query, params=None, fetch_all=False, return_row=False):
                     else:
                         return None
             else:
-                conn.commit()
+                if close_conn:
+                    conn.commit()  # Only commit if we opened the connection
                 return cursor.rowcount > 0
     except Exception as e:
-        conn.rollback()
-        print(f"Query failed: {e}")
+        if close_conn:
+            conn.rollback()
+        print(f"Query failed: {e}\nQuery: {query}\nParams: {params}")
         return False
     finally:
-        conn.close()
+        if close_conn:
+            conn.close()
 
 
-def add_person(first_name:str, middle_name:str, last_name:str, role:str, phone:str, email:str):
+def add_person(first_name, middle_name, last_name, role, phone, email, conn=None):
     query = get_query("Add person", crud)
-
     if not query:
         return False
 
+    print(f"[DEBUG] query:: {query}")
     phone = __format_phone(phone)
-    params = (first_name, middle_name, last_name, role, phone, email,)
-
-    result = execute_query(query, params)
+    params = (first_name, middle_name, last_name, role, phone, email)
+    result = execute_query(query, params, return_row=True, conn=conn)
     print(f"[DEBUG] Person insert result: {result}")
-
     return result if result else False
+
 
 
 def encrypt(plain_text, shift):
