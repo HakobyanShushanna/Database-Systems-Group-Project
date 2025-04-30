@@ -9,8 +9,6 @@ def navigation():
 
     if st.session_state.page == "home":
         home()
-    if st.session_state.page == "success":
-        success()
     elif st.session_state.page == "login_or_register":
         register_login()
     elif st.session_state.page == "profile":
@@ -25,6 +23,23 @@ def navigation():
         admin_operations.add_employee()
     elif st.session_state.page == "add_activity":
         admin_operations.add_activity()
+    elif st.session_state.page == "transactions_list" and st.session_state.selected_customer_id:
+        admin_operations.transactions_for_person(st.session_state.selected_customer_id)
+    elif st.session_state.page == "add_transaction":
+        admin_operations.add_transaction()
+    elif st.session_state.page == "deposits_list" and st.session_state.selected_customer_id:
+        admin_operations.deposits_for_person(st.session_state.selected_customer_id)
+    elif st.session_state.page == "add_deposit" and st.session_state.selected_customer_id:
+        admin_operations.add_deposit(st.session_state.selected_customer_id)
+    elif st.session_state.page == "withdrawals_list" and st.session_state.selected_customer_id:
+        admin_operations.withdrawals_for_person(st.session_state.selected_customer_id)
+    elif st.session_state.page == "add_withdrawal" and st.session_state.selected_customer_id:
+        admin_operations.add_withdrawal(st.session_state.selected_customer_id)
+    elif st.session_state.page == "loan_related" and st.session_state.selected_customer_id:
+        admin_operations.loan_information(st.session_state.selected_customer_id)
+    elif st.session_state.page == "add_loan" and st.session_state.selected_customer_id:
+        admin_operations.add_loan(st.session_state.selected_customer_id)
+
 
 
 def home():
@@ -33,7 +48,3 @@ def home():
 
     if st.button("Login or Register"):
         st.session_state.page = "login_or_register"
-
-
-def success():
-    st.write("Success")

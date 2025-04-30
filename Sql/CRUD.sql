@@ -56,7 +56,7 @@ INSERT INTO login (username, password)
 VALUES (%s, %s);
 
 -- Add branch_employee
-INSERT INTO branch_employee(branch_id, employee_id)
+INSERT INTO branch_employees(branch_id, employee_id)
 VALUES(%s, %s);
 
 -- Register person
