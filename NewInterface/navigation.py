@@ -41,7 +41,6 @@ def navigation():
         admin_operations.add_loan(st.session_state.selected_customer_id)
 
 
-
 def home():
     st.title("🏦 Welcome to the Banking System")
     st.write("Please select an option:")
